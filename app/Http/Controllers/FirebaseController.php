@@ -5,24 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Kreait\Firebase\Exception\FirebaseException;
 use Kreait\Firebase\Factory;
-use Kreait\Firebase\Storage as FirebaseStorage;
 
 class FirebaseController extends Controller
 {
-    protected $firebase;
-    public function firebaseStorage($path = "")
+    public function firebaseStorage()
     {
         return (new Factory)
             ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')))
-            // ->withDefaultStorageBucket(env('FIREBASE_STORAGE_BUCKET'))
             ->createStorage();
-            // ->createStorage("gs://".env('FIREBASE_STORAGE_BUCKET').$path);
     }
 
     public function index()
     {
         $files = [];
-
         try {
             $bucket = $this->firebaseStorage()->getBucket();
             $objects = $bucket->objects(['orderBy' => 'Created', 'maxResults' => 2, 'prefix' => 'images/']);
@@ -41,19 +36,15 @@ class FirebaseController extends Controller
                     'fullPath' => $object->name(),
                 ];
             }
+
+            return view('firebase.upload', compact('files'));
         } catch (FirebaseException $e) {
             dd('Error fetching data: ', $e->getMessage());
         }
-
-        // dd($files);
-
-        return view('firebase.upload', compact('files'));
     }
 
-    // upload
     public function upload(Request $request)
     {
-        // 10MB / images
         $request->validate([
             'file' => 'required|file|mimes:jpeg,png,jpg|max:10240',
         ]);
@@ -72,8 +63,7 @@ class FirebaseController extends Controller
             $date = date('Y-m');
             $firebaseStoragePath = "images/$date";
             $bucket = $this->firebaseStorage()->getBucket();
-            $object = $bucket->object($firebaseStoragePath .'/'.$filename);
-
+            
             // $fileUpload = fopen($file, 'r');
             $fileUpload = file_get_contents($file->getRealPath());
             $bucket->upload($fileUpload, [

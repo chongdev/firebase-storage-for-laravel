@@ -31,7 +31,7 @@ class FirebaseController extends Controller
 
                 $files[] = [
                     'name' => $basename,
-                    'url' => $object->signedUrl(new \DateTime('tomorrow')),
+                    'url' => $object->signedUrl(new \DateTime('+5 minutes')),
                     'metadata' => $object->info(),
                     'fullPath' => $object->name(),
                 ];
@@ -67,16 +67,16 @@ class FirebaseController extends Controller
             // $fileUpload = fopen($file, 'r');
             $fileUpload = file_get_contents($file->getRealPath());
             $bucket->upload($fileUpload, [
-                'name' =>  $firebaseStoragePath .'/'. $filename,
+                'name' => $firebaseStoragePath .'/'. $filename,
 
                 // save to path : images
-                'predefinedAcl' => 'publicRead',
+                // 'predefinedAcl' => 'publicRead',
 
                 // set metadata
-                'metadata' => [
-                    'contentType' => $type,
-                    'cacheControl' => 'public, max-age=31536000',
-                ],
+                // 'metadata' => [
+                //     'contentType' => $type,
+                //     'cacheControl' => 'public, max-age=31536000',
+                // ],
             ]);
 
             // $url = $data->signedUrl(new \DateTime('tomorrow'));

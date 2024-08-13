@@ -8,7 +8,7 @@ use Kreait\Firebase\Factory;
 
 class FirebaseController extends Controller
 {
-    public function firebaseStorage()
+    protected function firebaseStorage()
     {
         return (new Factory)
             ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')))
